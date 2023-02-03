@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="estilos/landingPage.css" />
+    <title>Home</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+      integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+      crossorigin=""
+    ></script>
+
+    <script src="leaflet/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- Turf.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Incluir plugin de mapa de calor de Leaflet -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
+    <!-- Incluir plugin de mapa de calor de Leaflet.idw -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="logicaFake/buscarMedidasGasMapa.js"></script>
+
+    <script>
+      function cookies() {
+        var cookies = document.cookie
+          .split(";")
+          .map((cookie) => cookie.split("="))
+          .reduce(
+            (accumulator, [key, value]) => ({
+              ...accumulator,
+              [key.trim()]: decodeURIComponent(value),
+            }),
+            {}
+          );
+
+        return cookies;
+      }
+
+      // Si la session esta iniciada nos envia directamente a loginpage
+      if (cookies().id) {
+        window.location.href = "Perfil.html";
+      }
+    </script>
+
+    <script>
+      function getMedidasMapa() {
+        var ozonoData, no2Data, so2Data;
+        var marcadoresGeoJSON;
+
+        buscarMedidasGasMapa("Ozono", function (err, res) {
+          if (err) {
+            reject(err);
+          } else if (res.error) {
+            reject(res.error);
+          } else {
+            ozonoData = res;
+            checkData();
+          }
+        });
+
+        buscarMedidasGasMapa("NO2", function (err, res) {
+          if (err) {
+            reject(err);
+          } else if (res.error) {
+            reject(res.error);
+          } else {
+            no2Data = res;
+            checkData();
+          }
+        });
+
+        buscarMedidasGasMapa("SO2", function (err, res) {
+          if (err) {
+            reject(err);
+          } else if (res.error) {
+            reject(res.error);
+          } else {
+            so2Data = res;
+            checkData();
+          }
+        });
+
+
+        $.getJSON("Metainfo_estaciones_2001_2021.geojson", function (data) {
+          marcadoresGeoJSON = data;
+
+          checkData()
+        });
+
+        function checkData() {
+          if (ozonoData && so2Data && no2Data && marcadoresGeoJSON) {
+            console.log(ozonoData);
+            console.log(so2Data);
+            console.log(no2Data);
+            console.log(marcadoresGeoJSON);
+
+            getDatos(ozonoData, so2Data, no2Data, marcadoresGeoJSON);
+          }
+        }
+      }
+    </script>
+  </head>
+
+  <body onload="getMedidasMapa()">
+    <header>
+      <p><a href="login.html">Login</a></p>
+    </header>
+    <div class="contenedor div1">
+      <div class="white"></div>
+      <div class="title">
+        <h1>
+          SoftAir. <br />
+          Conoce mejor tu entorno
+        </h1>
+        <p>Medimos la contaminación de tu entonrno</p>
+        <button>Mas información</button>
+      </div>
+      <div class="foto1">
+        <img src="imagenes/air_quality_hero.jpeg" alt="" />
+      </div>
+    </div>
+
+    <div class="contenedor div7">
+      <div class="text">
+        <h2>¿Qué estamos respirando en realidad?</h2>
+      </div>
+      <p class="textAux">
+        La contaminación atmosférica afecta a nuestra salud y a la
+        sostenibilidad del planeta. Es por eso que deberíamos estar informados
+        sobre los gases que respiramos y como una cantidad por encima de lo
+        normal puede afectar a nuestro organismo.
+      </p>
+      <div class="iconos">
+        <div class="icon">
+          <img src="imagenes/03_icono.png" alt="" />
+          <h1>Ozono (O3)</h1>
+          <p>
+            El ozono a altas concentraciones es un peligro para la salud, ya que
+            pueden irritar las vías respiratorias, causar dificultades para
+            respirar y daños pulmonares además de que también puede desencadenar
+            ataques de asma.
+          </p>
+          <p>Valores fijados por las directrices <strong>O3:</strong></p>
+          <h4>
+            - <strong>100 μg/m3</strong>, máximo diario de periodos de
+            <strong>8 horas</strong>. <br />
+            - <strong>60 μg/m3</strong>, promedio de periodos de 8 horas,
+            <strong>temporada máxima</strong>.
+            <br />
+            - Percentil 99 (es decir, <strong>3-4 días</strong> de superación
+            por <strong>año</strong>).
+          </h4>
+          <p>Efectos sobre la salud:</p>
+          <p>
+            El <strong>exceso de ozono</strong> en el aire puede producir
+            efectos adversos importantes sobre la salud humana. Puede causar
+            <strong>problemas respiratorios</strong>, provocar
+            <strong>asma</strong>, reducir la función pulmonar y dar lugar a
+            <strong>enfermedades pulmonares</strong>. Aunque no todas las
+            personas son igual de sensibles a niveles elevados de ozono,
+            Personas <strong>asmáticas o niños</strong> pueden experimentar
+            <strong>molestias incluso en niveles más bajos</strong>
+            que los umbrales de alerta de 240 µgr/m3.
+          </p>
+          <p>
+            El aumento de los niveles de ozono a concentraciones
+            <strong>superiores a los 240 µg/m3</strong> es motivo de inquietud
+            por los <strong>efectos adversos</strong> que este compuesto podría
+            ejercer:
+          </p>
+          <p>
+            • Deterioro de la función pulmonar. Envejecimiento prematuro de los
+            pulmones. <br />
+            • Irritación ocular, de nariz y garganta. <br />
+            • Malestar en las vías respiratorias y tos. <br />
+            • Mayor incidencia de ataques asmáticos y síntomas de disfunción
+            respiratoria en asmáticos. <br />
+            • Cefaleas. <br />
+            • Alteración del sistema inmunológico.
+          </p>
+        </div>
+        <div class="icon">
+          <img src="imagenes/SO2_icono.png" alt="" />
+          <h1>Dióxido de azufre (SO2)</h1>
+          <p>Valores fijados por las directrices SO2:</p>
+          <h4>- 40 μg/m3 de media diaria</h4>
+          <p>
+            Los estudios indican que un porcentaje de las
+            <strong>personas con asma</strong> experimenta
+            <strong>cambios</strong> en la
+            <strong>función pulmonar y síntomas respiratorios</strong> tras
+            periodos de <strong>exposición al SO2</strong>. Actualmente se sabe
+            que los efectos nocivos sobre la salud están asociados a niveles de
+            SO2 muy inferiores a los aceptados hasta ahora. Se requiere un mayor
+            grado de protección. Pese a las dudas que plantea todavía la
+            causalidad de los efectos de bajas concentraciones de SO2, es
+            probable que la reducción de las concentraciones disminuya la
+            exposición a otros contaminantes.
+          </p>
+          <p>Efectos sobre la salud:</p>
+          <p>
+            El <strong>SO2</strong> puede afectar al
+            <strong>sistema respiratorio</strong> y a las
+            <strong>funciones pulmonares</strong>, y causa
+            <strong>irritación ocular</strong>. La inflamación del sistema
+            respiratorio provoca
+            <strong
+              >tos, secreción mucosa y agravamiento del asma y la bronquitis
+              crónica</strong
+            >; asimismo, aumenta la propensión de las personas a contraer
+            infecciones del sistema respiratorio.
+            <strong>Los ingresos hospitalarios</strong> por cardiopatías y la
+            mortalidad
+            <strong
+              >aumentan en los días en que los niveles de SO2 son más
+              elevados</strong
+            >. Cuando el SO2 se combina con agua forma ácido sulfúrico, el
+            componente principal de la lluvia ácida, que es una de las causas de
+            la deforestación.
+          </p>
+        </div>
+        <div class="icon">
+          <img src="imagenes/H_icono.png" alt="" />
+          <h1>Dióxido de nitrógeno (NO2)</h1>
+          <p>
+            El <strong>dióxido de nitrógeno (NO2)</strong> es un contaminante
+            atmosférico cuyas
+            <strong>fuentes fundamentales son el tráfico </strong> rodado así
+            como las emisiones de determinadas <strong>industrias</strong>.
+          </p>
+          <p>
+            Sus <strong>niveles</strong> en la atmósfera están
+            <strong>aumentando en los últimos años</strong> por la mayor
+            utilización de <strong>gasolina diésel</strong>.
+          </p>
+          <p>Valores fijados por las directrices NO2:</p>
+          <h4>
+            -10 μg/m3 de media anual <br />
+            -25 μg/m3 de media diaria
+          </h4>
+          <p>
+            El valor actual de <strong>10 µg/m3 (media anual)</strong> que fijan
+            las directrices de la OMS tiene por objeto proteger a la población
+            de los <strong>efectos nocivos</strong> para la salud del NO2 en
+            estado gaseoso.
+          </p>
+          <p>Efectos sobre la salud</p>
+          <p>
+            Estudios epidemiológicos han revelado que los síntomas de
+            <strong>bronquitis en niños asmáticos</strong> aumentan en relación
+            con la <strong>exposición prolongada al NO2</strong>. La disminución
+            del desarrollo de la función pulmonar también se asocia con las
+            concentraciones de NO2 registradas (u observadas) actualmente en
+            ciudades europeas y norteamericanas.
+          </p>
+          <p>
+            Otro efecto de una larga exposición es
+            <strong>irritación los pulmones</strong> y
+            <strong>disminución de la función pulmonar</strong>, así como
+            <strong
+              >disminución de la resistencia a infecciones respiratorias</strong
+            >.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="contenedor div7 div72">
+      <div class="iconos">
+        <div class="icon">
+          <img src="imagenes/monoxido-de-carbono.png" alt="" />
+          <h1>Monóxido de carbono (CO)</h1>
+          <p>
+            El CO es un gas inodoro, incoloro, inflamable y altamente tóxico.
+            Puede causar la muerte cuando se respira en niveles elevados. Se
+            produce cuando se queman materiales combustibles como gas, gasolina,
+            keroseno, carbón, petróleo, tabaco o madera en ambientes de poco
+            oxígeno.
+          </p>
+          <p>Valores fijados por las directrices <strong>CO:</strong></p>
+          <h4>
+            - <strong>100 μg/m3</strong> (≈ 90 ppm) durante
+            <strong>15 minutos</strong>. <br />
+            - <strong>60 mg/m3</strong> (≈ 50 ppm) durante
+            <strong>30 minutos</strong>. <br />
+            - <strong>30 mg/m3</strong> (≈ 25 ppm) durante
+            <strong>1 hora</strong>. <br />
+            - <strong>10 mg/m3</strong> (≈ 10 ppm) durante
+            <strong>8 horas</strong>.
+          </h4>
+          <p>
+            Los <strong>efectos en la salud</strong> pueden producirse
+            inmediatamente o poco tiempo después de la exposición al monóxido de
+            carbono:
+          </p>
+          <p>
+            • Respirar monóxido de carbono puede causar
+            <strong
+              >dolor de cabeza, mareo, sensación de desvanecimiento y
+              cansancio</strong
+            >. <br />
+            <br />
+
+            • A <strong>niveles más altos</strong> la exposición al monóxido de
+            carbono puede causar
+            <strong
+              >somnolencia, alucinaciones, convulsiones y pérdida de
+              conocimiento</strong
+            >. <br />
+            <br />
+
+            • El monóxido de carbono puede
+            <strong
+              >causar cambios en la memoria y en la personalidad, confusión
+              mental y pérdida de visión</strong
+            >.
+          </p>
+        </div>
+        <div class="icon">
+          <img src="imagenes/nube-de-co2.png" alt="" />
+          <h1>Dióxido de carbono (CO2)</h1>
+          <p>
+            El <strong>dióxido de carbono (CO2)</strong> es un gas incoloro e
+            inodoro, forma parte de la naturaleza y es indispensable para la
+            vida en la Tierra. De no existir el CO2 las plantas no existirían,
+            ya que éstas lo necesitan para realizar la fotosíntesis. No es
+            realmente un tóxico pero en concentraciones altas, de más de 30.000
+            ppm, puede producir asfixia.
+          </p>
+          <p>Los efectos en la salud son:</p>
+          <p>
+            • El principal efecto que produce el CO2 es la asfixia por
+            desplazamiento del oxígeno, pero esto se produce por concentraciones
+            muy altas capaces de desplazar el oxígeno y reducir su concentración
+            por debajo del 20%. <br />
+            <br />
+
+            • En concentraciones altas, cercanas a la 30.000 ppm, puede causar
+            dolores de cabeza, falta de concentración, somnolencia, mareos y
+            problemas respiratorios.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="contenedor div2">
+      <div class="text">
+        <h2>
+          ¿Por qué <br />
+          nosotros?
+        </h2>
+        <p>
+          Somos un equipo de confianza y tenemos buen historial de proyectos
+          hechos en nuestras espaldas como: <br />
+          <br />
+          - Los proyectos IOT(Buzonillo, MirrorMe) <br />
+          - Videjuegos(InfiniteRun, Slightshot) <br />
+          <br />
+          Además de un proyecto que consistía en montar varios sensores a una
+          placa SPARKFUN para monitorizar un campo de cultivos y obtener las
+          medidas de salinidad, temperatura, etc.
+        </p>
+      </div>
+      <div class="reasons">
+        <div class="reason1">
+          <h1>1</h1>
+          <p>
+            Tenemos gran experiencia en el desarollo de proyectos IOT usando las
+            últimas tecnologías.
+          </p>
+        </div>
+        <div class="reason2">
+          <h1>2</h1>
+          <p>
+            Cada día vamos mejorando nuestros conociminetos en diferentes
+            tecnologías y lenguajes de programación.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="contenedor div3">
+      <div class="text">
+        <h2>Nuestro equipo</h2>
+      </div>
+      <div class="team">
+        <div class="member">
+          <img src="imagenes/pato_jorge.jpeg" alt="" />
+          <div class="name">Jorge</div>
+          <div class="descrip">
+            El Back-end developer. <br />
+            El responsable de la programación de la aplicación y el servidor
+            junto a la base de datos.
+          </div>
+        </div>
+        <div class="member">
+          <img src="imagenes/pato_chenyi.jpeg" />
+          <div class="name">Chenyi</div>
+          <div class="descrip">
+            El Front-ware developer APP. <br />
+            Diseña e implementa los layout de la aplicación en Android y ayuda a
+            organizar el grupo como Scrum Master
+          </div>
+        </div>
+        <div class="member">
+          <img src="imagenes/pato_david.jpeg" alt="" />
+          <div class="name">David</div>
+          <div class="descrip">
+            El Hardware developer. <br />
+            Se ocupa de la programación de la parte de Arduino. Y conexión de
+            las dos partes: Arduino y la Aplicación
+          </div>
+        </div>
+        <div class="member">
+          <img src="imagenes/pato_kati.webp" alt="" />
+          <div class="name">Kati</div>
+          <div class="descrip">
+            El Front-ware developer Web. <br />
+            Implementa y diseña las maquetas para la web.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contenedor div4">
+      <div class="text" style="text-align: center">
+        <h2>Cómo funciona</h2>
+      </div>
+
+      <!-- Flickity HTML init -->
+      <div class="containerGalery">
+        <input type="radio" name="slider" id="item-1" checked />
+        <input type="radio" name="slider" id="item-2" />
+        <input type="radio" name="slider" id="item-3" />
+        <div class="cards">
+          <label class="card" for="item-1" id="song-1">
+            <img src="imagenes/paso1.jpg" alt="song" />
+          </label>
+          <label class="card" for="item-2" id="song-2">
+            <img src="imagenes/paso2.jpg" alt="song" />
+          </label>
+          <label class="card" for="item-3" id="song-3">
+            <img src="imagenes/paso3.jpg" alt="song" />
+          </label>
+        </div>
+      </div>
+
+      <p>
+        1. Crea la cuenta en la app y te llevamos tu sensor a casa <br />
+        2. Vincula el sensor con tu aplicacion mediante el código QR <br />
+        3. Consulta y controla los niveles del ozono de tu entorno
+      </p>
+    </div>
+
+    <div class="contenedor div5" id="map">
+      <div class="text">
+        <h2>Zonas</h2>
+      </div>
+      <p style="text-align: center"></p>
+      <div id="map"></div>
+    </div>
+
+    <div class="contenedor div6">
+      <div class="text">
+        <h2>Contáctanos</h2>
+      </div>
+      <form
+        action="https://formsubmit.co/47b6a53a2e0a934f10dc51283b53508f"
+        method="POST"
+        onclick="test()"
+      >
+        <input type="text" name="nombre" id="name" placeholder="Nombre" />
+        <input
+          type="text"
+          name="apellidos"
+          id="apellidos"
+          placeholder="Apellidos"
+        />
+        <input type="text" name="movil" id="telefono" placeholder="Telefono" />
+        <input type="email" name="email" id="email" placeholder="Email" />
+
+        <input
+          type="hidden"
+          name="_autoresponse"
+          value="Gracias por contactar"
+          id="respuesta"
+        />
+        <select name="asunto" id="asunto">
+          <option value="atencion">Atención al cliente</option>
+          <option value="info">Información</option>
+          <option value="quejas">Quejas</option>
+          <option value="otros">Otros</option>
+        </select>
+        <textarea type="text" name="mensaje" id="mensaje" placeholder="Mensaje">
+        </textarea>
+
+        <button type="submit">Enviar</button>
+        <input
+          type="hidden"
+          name="_next"
+          value="http://127.0.0.1:5500/ux/index.html"
+        />
+      </form>
+    </div>
+
+    <footer>
+      <div class="contactInfo">
+        <div class="datos">
+          <h3>Información para contactar:</h3>
+          <p>
+            643631856 <br />
+            softairjdec@gmail.com
+          </p>
+        </div>
+        <div class="semana">
+          <p>De Lunes a Viernes <br />9:00 - 18:00</p>
+        </div>
+        <div class="direccion">
+          <p>
+            Carrer de Paraninf, 1, 46730 <br />
+            Campus de la Universidad <br />
+            Politecnica de Gandia
+          </p>
+        </div>
+      </div>
+      <div class="subscribe"></div>
+    </footer>
+  </body>
+
+  <script src="leaflet/leaflet-idw.js"></script>
+  <script src="logicaFake/mapa.js"></script>
+</html>
